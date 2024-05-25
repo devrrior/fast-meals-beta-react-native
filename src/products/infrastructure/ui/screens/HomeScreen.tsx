@@ -12,15 +12,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {listProductsUseCase} from '../../dependecies';
 import ProductEntity from '../../../domain/entities/ProductEntity';
 import AppBar from '../../../../shared/infrastructure/ui/components/AppBar';
-import {HomeScreenRouteProp, OfflineBanner} from '../../../../../App';
-import {useNetInfoInstance} from '@react-native-community/netinfo';
+import {HomeScreenRouteProp} from '../../../../../App';
 
 const HomeScreen = ({navigation}: HomeScreenRouteProp) => {
   const [products, setProducts] = useState([] as ProductEntity[]);
-  const {
-    netInfo: {type, isConnected},
-    refresh,
-  } = useNetInfoInstance();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -29,44 +24,32 @@ const HomeScreen = ({navigation}: HomeScreenRouteProp) => {
     };
 
     fetchProducts();
-  }, [isConnected]);
+  }, []);
 
   return (
     <SafeAreaView>
       <AppBar title="Productos" />
       {/* checa si hay internet */}
       {/* <OfflineBanner /> */}
-      {!isConnected && (
-        <View style={styles.noInternetContainer}>
-          <Text style={styles.noInternetText}>
-            No tienes conexión a internet
-          </Text>
-          <TouchableOpacity onPress={refresh}>
-            <Text style={styles.refreshText}>Actualizar</Text>
-          </TouchableOpacity>
+      <ScrollView>
+        <View style={styles.container}>
+          {products.map((product: ProductEntity) => (
+            <TouchableOpacity
+              key={product.id}
+              style={styles.productContainer}
+              onPress={() =>
+                navigation.navigate('ProductDetail', {productId: product.id})
+              }>
+              <Image
+                source={{uri: product.imageURL}}
+                style={styles.productImage}
+              />
+              <Text style={styles.productName}>{product.title}</Text>
+              <Text style={styles.productPrice}>${product.price}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      )}
-      {isConnected && (
-        <ScrollView>
-          <View style={styles.container}>
-            {products.map((product: ProductEntity) => (
-              <TouchableOpacity
-                key={product.id}
-                style={styles.productContainer}
-                onPress={() =>
-                  navigation.navigate('ProductDetail', {productId: product.id})
-                }>
-                <Image
-                  source={{uri: product.imageURL}}
-                  style={styles.productImage}
-                />
-                <Text style={styles.productName}>{product.title}</Text>
-                <Text style={styles.productPrice}>${product.price}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      )}
+      </ScrollView>
     </SafeAreaView>
   );
 };

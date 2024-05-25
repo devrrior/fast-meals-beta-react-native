@@ -1,19 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Text,
-  View,
-  Image,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import {Text, View, Image, Button, StyleSheet} from 'react-native';
 import {ProductDetailScreenRouteProp} from '../../../../../App';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getByIdProductUseCase} from '../../dependecies';
 import ProductEntity from '../../../domain/entities/ProductEntity';
 import AppBar from '../../../../shared/infrastructure/ui/components/AppBar';
 import {addProductToCartUseCase} from '../../../../cart/infrastructure/dependecies';
-import {useNetInfoInstance} from '@react-native-community/netinfo';
 
 const ProductDetailScreen = ({
   route,
@@ -21,10 +13,6 @@ const ProductDetailScreen = ({
 }: ProductDetailScreenRouteProp) => {
   const {productId} = route.params;
   const [product, setProduct] = useState({} as ProductEntity | null);
-  const {
-    netInfo: {type, isConnected},
-    refresh,
-  } = useNetInfoInstance();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +21,7 @@ const ProductDetailScreen = ({
     };
 
     fetchData();
-  }, [productId, isConnected]);
+  }, [productId]);
 
   const addToCart = async () => {
     await addProductToCartUseCase.execute(productId, 1);
@@ -43,25 +31,13 @@ const ProductDetailScreen = ({
   return (
     <SafeAreaView>
       <AppBar title="Detalle del producto" />
-      {!isConnected && (
-        <View style={styles.noInternetContainer}>
-          <Text style={styles.noInternetText}>
-            No tienes conexión a internet
-          </Text>
-          <TouchableOpacity onPress={refresh}>
-            <Text style={styles.refreshText}>Actualizar</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      {isConnected && (
-        <View style={styles.content}>
-          <Image source={{uri: product?.imageURL}} style={styles.image} />
-          <Text style={styles.title}>{product?.title}</Text>
-          <Text style={styles.description}>{product?.description}</Text>
-          <Text style={styles.price}>${product?.price}</Text>
-          <Button title="Agregar al carrito" onPress={addToCart} />
-        </View>
-      )}
+      <View style={styles.content}>
+        <Image source={{uri: product?.imageURL}} style={styles.image} />
+        <Text style={styles.title}>{product?.title}</Text>
+        <Text style={styles.description}>{product?.description}</Text>
+        <Text style={styles.price}>${product?.price}</Text>
+        <Button title="Agregar al carrito" onPress={addToCart} />
+      </View>
     </SafeAreaView>
   );
 };
