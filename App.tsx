@@ -1,118 +1,80 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
+import HomeScreen from './src/products/infrastructure/ui/screens/HomeScreen';
+import ProductDetailScreen from './src/products/infrastructure/ui/screens/ProductDetailScreen';
+import CartScreen from './src/cart/infrastructure/ui/screens/CartScreen';
+import {Text, View} from 'react-native';
+import {Provider, useDispatch, useSelector} from 'react-redux';
+import {useEffect} from 'react';
+import {setConnectionStatus} from './src/shared/infrastructure/redux/actions/connectionActions';
+import {addEventListener} from '@react-native-community/netinfo';
+import {persistor, store} from './src/shared/infrastructure/redux/store';
+import {PersistGate} from 'redux-persist/integration/react';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export type RootStackParamList = {
+  Home: undefined;
+  Cart: undefined;
+  ProductDetail: {productId: number};
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+export type HomeScreenRouteProp = NativeStackScreenProps<
+  RootStackParamList,
+  'Home'
+>;
+export type ProductDetailScreenRouteProp = NativeStackScreenProps<
+  RootStackParamList,
+  'ProductDetail'
+>;
+export type CartScreenRouteProp = NativeStackScreenProps<
+  RootStackParamList,
+  'Cart'
+>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createNativeStackNavigator();
+
+export const OfflineBanner = () => {
+  const isConnected = useSelector((state: any) => state.connection.isConnected);
+
+  if (!isConnected) {
+    return (
+      <View style={{backgroundColor: 'red', padding: 10}}>
+        <Text style={{color: 'white'}}>No hay conexión a internet</Text>
+      </View>
+    );
+  }
+
+  return null;
+};
+
+const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const unsubscribe = addEventListener(state => {
+      if (state.isConnected !== null) {
+        dispatch(setConnectionStatus(state.isConnected));
+      }
+    });
+
+    return () => unsubscribe();
+  }, [dispatch]);
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <PersistGate loading={null} persistor={persistor}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PersistGate>
   );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
