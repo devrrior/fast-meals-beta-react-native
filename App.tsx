@@ -8,6 +8,8 @@ import ProductDetailScreen from './src/products/infrastructure/ui/screens/Produc
 import CartScreen from './src/cart/infrastructure/ui/screens/CartScreen';
 import {useEffect} from 'react';
 import {syncPendingOperations} from './src/shared/infrastructure/utils/sync';
+import {StyleSheet, View} from 'react-native';
+import OfflineBanner from './src/shared/infrastructure/ui/components/OfflineBanner';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -41,15 +43,24 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{headerShown: false}}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-        <Stack.Screen name="Cart" component={CartScreen} />
-      </Stack.Navigator>
+      <View style={styles.container}>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
+        </Stack.Navigator>
+        <OfflineBanner />
+      </View>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
 export default App;

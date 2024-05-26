@@ -12,6 +12,8 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
   async list(): Promise<ProductEntity[]> {
     const connectionStatus = await isConnected();
 
+    console.log('Connection status:', connectionStatus);
+
     if (connectionStatus) {
       try {
         await syncPendingOperations(); // Sync pending operations on connection
@@ -58,6 +60,8 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
   async getById(id: number): Promise<ProductEntity | null> {
     const connectionStatus = await isConnected();
 
+    console.log('Connection status:', connectionStatus);
+
     if (connectionStatus) {
       try {
         await syncPendingOperations(); // Sync pending operations on connection
@@ -87,15 +91,16 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
       }
     } else {
       // Retrieve data from local storage if offline
-      const localData = await getData(`product_${id}`);
-      if (localData) {
+      const products = (await getData('products')) || [];
+      const product = products.find((product: any) => product.id === id);
+      if (product) {
         return new ProductEntity(
-          localData.id,
-          localData.title,
-          localData.image_url,
-          localData.description,
-          localData.price,
-          localData.stock,
+          product.id,
+          product.title,
+          product.image_url,
+          product.description,
+          product.price,
+          product.stock,
         );
       }
       return null;
@@ -104,6 +109,8 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
 
   async create(product: ProductEntity): Promise<void> {
     const connectionStatus = await isConnected();
+
+    console.log('Connection status:', connectionStatus);
 
     if (connectionStatus) {
       try {
@@ -126,6 +133,8 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
   async update(id: number, product: ProductEntity): Promise<void> {
     const connectionStatus = await isConnected();
 
+    console.log('Connection status:', connectionStatus);
+
     if (connectionStatus) {
       try {
         await axiosInstance.put(`/products/${id}`, product);
@@ -147,6 +156,8 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
 
   async delete(id: number): Promise<void> {
     const connectionStatus = await isConnected();
+
+    console.log('Connection status:', connectionStatus);
 
     if (connectionStatus) {
       try {

@@ -67,6 +67,8 @@ class CartRepositoryAdapter implements ICartRepositoryPort {
   async addProductToCart(productId: number, quantity: number): Promise<void> {
     const connectionStatus = await isConnected();
 
+    console.log('Connection status:', connectionStatus);
+
     if (connectionStatus) {
       try {
         const response = await axiosInstance.post(
@@ -100,6 +102,8 @@ class CartRepositoryAdapter implements ICartRepositoryPort {
   async removeProductFromCart(cartItemId: number): Promise<void> {
     const connectionStatus = await isConnected();
 
+    console.log('Connection status:', connectionStatus);
+
     if (connectionStatus) {
       try {
         await axiosInstance.delete(`/cart/${cartItemId}`);
@@ -127,6 +131,8 @@ class CartRepositoryAdapter implements ICartRepositoryPort {
 
   async updateCartItem(cartItemId: number, quantity: number): Promise<void> {
     const connectionStatus = await isConnected();
+
+    console.log('Connection status:', connectionStatus);
 
     if (connectionStatus) {
       try {
