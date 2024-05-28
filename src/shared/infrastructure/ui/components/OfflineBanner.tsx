@@ -1,21 +1,14 @@
-import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
+import useNetwork from '../../hooks/useNetwork';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store/store';
 
-const OfflineBanner: React.FC = () => {
-  const [isConnected, setIsConnected] = useState(true);
+const OfflineBanner = () => {
+  useNetwork();
 
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
-      const connected =
-        state.isConnected && (state.isInternetReachable ?? false);
-      setIsConnected(connected || false);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const isConnected = useSelector(
+    (state: RootState) => state.network.isConnected,
+  );
 
   if (isConnected) {
     return null;

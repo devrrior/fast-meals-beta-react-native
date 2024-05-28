@@ -92,7 +92,9 @@ class ProductRepositoryAdapter implements IProductRepositoryPort {
     } else {
       // Retrieve data from local storage if offline
       const products = (await getData('products')) || [];
-      const product = products.find((product: any) => product.id === id);
+      const product = products.find(
+        (productData: ProductEntity) => productData.id === id,
+      );
       if (product) {
         return new ProductEntity(
           product.id,

@@ -10,6 +10,8 @@ import {useEffect} from 'react';
 import {syncPendingOperations} from './src/shared/infrastructure/utils/sync';
 import {StyleSheet, View} from 'react-native';
 import OfflineBanner from './src/shared/infrastructure/ui/components/OfflineBanner';
+import {Provider} from 'react-redux';
+import store from './src/shared/infrastructure/store/store';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -30,7 +32,7 @@ export type CartScreenRouteProp = NativeStackScreenProps<
   'Cart'
 >;
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
   useEffect(() => {
@@ -42,18 +44,23 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer>
-      <View style={styles.container}>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-          <Stack.Screen name="Cart" component={CartScreen} />
-        </Stack.Navigator>
-        <OfflineBanner />
-      </View>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <View style={styles.container}>
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="ProductDetail"
+              component={ProductDetailScreen}
+            />
+            <Stack.Screen name="Cart" component={CartScreen} />
+          </Stack.Navigator>
+          <OfflineBanner />
+        </View>
+      </NavigationContainer>
+    </Provider>
   );
 };
 

@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, Image, Button, StyleSheet} from 'react-native';
+import {Text, View, Image, Button, StyleSheet, Alert} from 'react-native';
 import {ProductDetailScreenRouteProp} from '../../../../../App';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getByIdProductUseCase} from '../../dependecies';
 import ProductEntity from '../../../domain/entities/ProductEntity';
 import AppBar from '../../../../shared/infrastructure/ui/components/AppBar';
 import {addProductToCartUseCase} from '../../../../cart/infrastructure/dependecies';
+import {useSelector} from 'react-redux';
+import useNetwork from '../../../../shared/infrastructure/hooks/useNetwork';
+import {RootState} from '../../../../shared/infrastructure/store/store';
 
 const ProductDetailScreen = ({
   route,
@@ -13,6 +16,12 @@ const ProductDetailScreen = ({
 }: ProductDetailScreenRouteProp) => {
   const {productId} = route.params;
   const [product, setProduct] = useState({} as ProductEntity | null);
+
+  useNetwork();
+
+  const isConnected = useSelector(
+    (state: RootState) => state.network.isConnected,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,6 +33,13 @@ const ProductDetailScreen = ({
   }, [productId]);
 
   const addToCart = async () => {
+    const connectionStatus = isConnected;
+
+    if (!connectionStatus) {
+      Alert.alert('Se necesita conexión a internet para agregar al carrito');
+      return;
+    }
+
     await addProductToCartUseCase.execute(productId, 1);
     navigation.navigate('Cart');
   };
